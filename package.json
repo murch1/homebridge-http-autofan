@@ -1,7 +1,7 @@
 {
-  "name": "homebridge-httptemperaturehumidity",
-  "version": "0.0.16",
-  "description": "https plugin for homebridge",
+  "name": "homebridge-httpautofan",
+  "version": "0.0.1",
+  "description": "automatic fan https plugin for homebridge",
   "license": "ISC",
   "keywords": [
     "homebridge-plugin"
@@ -11,11 +11,11 @@
     "homebridge": ">=0.2.0"
   },
   "author": {
-    "name": "Luca Critelli"
+    "name": "Ben Murchie"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/lucacri/homebridge-http-temperature-humidity.git"
+    "url": "git://github.com/murch1/homebridge-http-autofan.git"
   },
   "dependencies": {
     "cache-service-cache-module": "^1.2.4",
