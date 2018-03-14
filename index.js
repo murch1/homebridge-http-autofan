@@ -158,7 +158,7 @@ HttpAutofan.prototype = {
             humidityService
                 .getCharacteristic(Characteristic.CurrentRelativeHumidity)
                 .setProps({ minValue: 0, maxValue: 100 })
-                .on("get", this.getHumidityState.bind(this));
+                .on("get", this.getHumidity.bind(this));
 //            humidityService
 //		.getCharacteristic(Characteristic.StatusFault)
 //		.on('set', this.setStatusFault.bind(this));
