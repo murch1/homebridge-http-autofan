@@ -11,10 +11,10 @@ var superagentCache = require("superagent-cache-plugin")(cache);
 module.exports = function (homebridge) {
     Service = homebridge.hap.Service;
     Characteristic = homebridge.hap.Characteristic;
-    homebridge.registerAccessory("homebridge-httptemperaturehumidity", "HttpTemphum", HttpTemphum);
+    homebridge.registerAccessory("homebridge-httpautofan", "HttpAutofan", HttpAutofan);
 }
 
-function HttpTemphum(log, config) {
+function HttpAutofan(log, config) {
     this.log = log;
 
     // Configuration
@@ -24,7 +24,7 @@ function HttpTemphum(log, config) {
     this.model           = config["model"] || "DHT22";
     this.serial          = config["serial"] || "AAA001";
     // Temperature
-	this.temperature     = config["temperature"] || 1;
+    this.temperature     = config["temperature"] || 1;
     this.temp_PV         = config["temp_PV"];
     this.temp_SP         = config["temp_SP"];
     this.temp_alarm      = config["temp_alarm"];
@@ -75,7 +75,7 @@ function sendData(param, callback) {
          });
 }
 
-HttpTemphum.prototype = {
+HttpAutofan.prototype = {
 
 	temperature: undefined,
 	humidity: undefined,
