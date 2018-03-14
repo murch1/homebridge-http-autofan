@@ -2,7 +2,10 @@
 
 A fan accessory for [Homebridge](https://github.com/nfarina/homebridge). This fan can be controlled manually by entering 1 of four speed settings (Stop [0] - Slow [1] - Med [2] - High [3]). Alternativley, by pressing the AUTO switch, the speed of the fan will be controlled by the ambient temperature. This fan is used to cool the room, so any temperature at or below the setpoint will stop the fan until it is started by the user again.
 
-This accessory is purely a front end GUI to access a HTTP server running on Node-RED, which then communicates to a PLC, over modbus serial, that actually controls the fan. 
+This accessory is purely a front end GUI. There's a few other components in the background that make it all come together:
+* a HTTP server running on Node-RED - receives HTTP messages from homebridge. This message then gets traslated in to Modbus communucation.
+* PLC receives communication and performs action and supplies feedback back to user.
+* PLC digital outputs control ceiling fan.
 
 # Installation
 
@@ -63,7 +66,7 @@ This accessory is purely a front end GUI to access a HTTP server running on Node
 
     Service.Fanv2.UUID = '000000B7-0000-1000-8000-0026BB765291';
     ```
-    **Please note this altered service won't be recognised in Apple's Home.app. The Elgato Eve figures it out just fine.**
+    **Please note this altered service won't be recognised in Apple's Home.app. The Elgato Eve.app figures it out just fine.**
     
 3. Update your configuration file. See `sample-config.json` in this repository for a sample.
 
