@@ -10,7 +10,7 @@ This accessory is purely a front end GUI. There's a few other components in the 
 # Installation
 
 1. Install homebridge using: `npm install -g homebridge`
-2. Install this plugin using: ` npm install git://github.com/murch1/homebridge-http-autofand.git`
+2. Install this plugin using: ` npm install git://github.com/murch1/homebridge-http-autofan.git`
 3. Edit .../node_modules/homebridge/node_modules/hap-nodejs/lib/Characteristic.js
     a. Find `Characteristic.Perms` and add `SPEED: 'speed'` to the dictionary.
 4. Edit .../node_modules/homebridge/node_modules/hap-nodejs/lib/gen/HomeKitTypes.js
