@@ -145,10 +145,10 @@ HttpAutofan.prototype = {
             temperatureService
                 .getCharacteristic(Characteristic.CurrentTemperature)
                 .setProps({ minValue: -273.0, maxValue: 200.0 })
-                .on("get", this.getTemperature.bind(this))
-            temperatureService
-	    	    .getCharacteristic(Characteristic.StatusFault)
-			    .on('set', this.setStatusFault.bind(this));
+                .on("get", this.getTemperature.bind(this));
+//            temperatureService
+//	    	.getCharacteristic(Characteristic.StatusFault)
+//		.on('set', this.setStatusFault.bind(this));
             this.temperature = temperatureService;
             services.push(this.temperature);
         }
@@ -158,10 +158,10 @@ HttpAutofan.prototype = {
             humidityService
                 .getCharacteristic(Characteristic.CurrentRelativeHumidity)
                 .setProps({ minValue: 0, maxValue: 100 })
-                .on("get", this.getHumidityState.bind(this))
-            humidityService
-			    .getCharacteristic(Characteristic.StatusFault)
-			    .on('set', this.setStatusFault.bind(this));
+                .on("get", this.getHumidityState.bind(this));
+//            humidityService
+//		.getCharacteristic(Characteristic.StatusFault)
+//		.on('set', this.setStatusFault.bind(this));
             this.humidity = humidityService;
             services.push(this.humidityService);
         }
