@@ -100,13 +100,14 @@ The example above is for the PLC cabinet. It has a DHT22 temperature and humidit
 Set `temperature`,`humidity` or `fan` to either 1 (for enable) or 0 (for disable).
 If no setting is entered for any of these, it will default to `temperature` only. For any characteristic you enable, you will need to provide the modbus addresses that relate to that function in the PLC.
 
-*    -temp_P- = temperature process variable (reading) (x10) - integer - the PLC will need to provide 24.5 as 245. The decimal point will be added in this accessory code.
-*    temp_SP = temperature set point (x10) - integer - the PLC will recieve the temperature as 245 from this accessory code.
-*    temp_alarm = temperature failure alarm - bool - the alarm will be shown in HomeKit as StatusFault value 1.
-*    hum_PV = humidity process variable (reading) - integer - No decimal points used in humidity.
-*    hum_alarm = humidity failure alarm - bool - the alarm will be shown in HomeKit as StatusFault value 1.
-*    fan_SP = fan speed setpoint - bool[4] = [off,low,med,high] - the fan speed setpoint uses 4 digital pulses that manually set the fan speed. It's programmed like this in the PLC so it can use the 4 position rotary switch on the wall as a speed reference as well (for those times you want to set the fan speed like a cave man).
-*    fan_PV = fan rotation speed feedback - integer - values 0 to 3 relate to the speed of the fan.
-*    fan_autoPV = fan automatic speed control feedback - bool - on = fan in automatic control, off = manual control. The automatic control will turn off automatically if the fan stops (ie setpoint temperature is reached).
-*    fan_autoSP = fan automatic speed control switch - bool - on = fan in automatic control, off = manual control.
+# Modbus address settings
+*    temp_PV = temperature process variable (reading) (x10) - *integer* - the PLC will need to provide 24.5 as 245. The decimal point will be added in this accessory code.
+*    temp_SP = temperature set point (x10) - *integer* - the PLC will recieve the temperature as 245 from this accessory code.
+*    temp_alarm = temperature failure alarm - *bool* - the alarm will be shown in HomeKit as StatusFault value 1.
+*    hum_PV = humidity process variable (reading) - *integer* - No decimal points used in humidity.
+*    hum_alarm = humidity failure alarm - *bool* - the alarm will be shown in HomeKit as StatusFault value 1.
+*    fan_SP = fan speed setpoint - *bool[4] = [off,low,med,high]* - the fan speed setpoint uses 4 digital pulses that manually set the fan speed. It's programmed like this in the PLC so it can use the 4 position rotary switch on the wall as a speed reference as well (for those times you want to set the fan speed like a cave man).
+*    fan_PV = fan rotation speed feedback - *integer* - values 0 to 3 relate to the speed of the fan.
+*    fan_autoPV = fan automatic speed control feedback - *bool* - on = fan in automatic control, off = manual control. The automatic control will turn off automatically if the fan stops (ie setpoint temperature is reached).
+*    fan_autoSP = fan automatic speed control switch - *bool* - on = fan in automatic control, off = manual control.
 If the PLC generates an alarm (in my case, a failure alarm), this status can be made visible next to the characteristic inside the app.
