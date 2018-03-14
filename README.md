@@ -83,7 +83,7 @@ Sample configuration:
 	    "temperature": 1,
             "temp_PV" : 6,
             "temp_SP" : 402,
-           "temp_alarm" : 16692,
+            "temp_alarm" : 16692,
 	    "humidity": 1,
             "hum_PV" : 7,
             "hum_alarm" : 16691,
