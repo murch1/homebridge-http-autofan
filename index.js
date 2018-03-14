@@ -18,69 +18,117 @@ function HttpTemphum(log, config) {
     this.log = log;
 
     // Configuration
-    this.url             = config["url"];
-    this.httpMethod      = config["httpMethod"] || "GET";
     this.name            = config["name"];
-    this.manufacturer    = config["manufacturer"] || "Generic";
-    this.model           = config["model"] || "HTTP(S)";
-    this.serial          = config["serial"] || "";
-    this.humidity        = config["humidity"];
-    this.lastUpdateAt    = config["lastUpdateAt"] || null;
-    this.cacheExpiration = config["cacheExpiration"] || 60;
+    // Accessory information
+    this.manufacturer    = config["manufacturer"] || "MurchHome";
+    this.model           = config["model"] || "DHT22";
+    this.serial          = config["serial"] || "AAA001";
+    // Temperature
+	this.temperature     = config["temperature"] || 1;
+    this.temp_PV         = config["temp_PV"];
+    this.temp_SP         = config["temp_SP"];
+    this.temp_alarm      = config["temp_alarm"];
+    // Humidity
+    this.humidity        = config["humidity"] || 0;
+    this.hum_PV        	 = config["hum_PV"];
+    this.hum_alarm       = config["hum_alarm"];
+    // Fan
+	this.fan             = config["fan"] || 0;
+    this.fan_SP          = config["fan_SP"];
+    this.fan_PV          = config["fan_PV"];
+    this.fan_autoPV      = config["fan_autoPV"];
+    this.fan_autoSP      = config["fan_autoSP"];
+}
+
+function getData(addr, type, callback) {
+    var param = {"raddr": addr,
+                 "rtype" : type};
+	sendData(param, function(res) {
+		callback(res);
+	});
+}
+
+function getSetData(raddr,rtype,waddr,wtype,wmode,write) { 
+	var param = {"raddr" : raddr,
+                 "rtype" : rtype,
+                 "waddr" : waddr,
+                 "wtype" : wtype,
+                 "wmode" : wmode,
+                 "write" : write}
+	sendData(param, function(res) {
+		callback(res);
+	});		
+}
+
+function sendData(param, callback) {
+    request
+        .get('http://127.0.0.1/modbus')
+        .query(param)
+        .end(function(err, res, key) {
+            if (err) {
+                console.log(`NODE-RED HTTP failure`);
+                callback(null);
+            } else {
+                console.log(`HTTP success (${res})`);
+                callback(res);
+            }
+         });
 }
 
 HttpTemphum.prototype = {
 
-    getRemoteState: function(service, callback) {
-        request(this.httpMethod, this.url)
-          .set("Accept", "application/json")
-          .use(superagentCache)
-          .expiration(this.cacheExpiration)
-          .end(function(err, res, key) {
-            if (err) {
-                this.log(`HTTP failure (${this.url})`);
-                callback(err);
-            } else {
-                this.log(`HTTP success (${key})`);
-
-                this.temperatureService.setCharacteristic(
-                    Characteristic.CurrentTemperature,
-                    res.body.temperature
-                );
-                this.temperature = res.body.temperature;
-
-                if (this.humidity !== false) {
-                    this.humidityService.setCharacteristic(
-                        Characteristic.CurrentRelativeHumidity,
-                        res.body.humidity
-                    );
-                    this.humidity = res.body.humidity;
+	temperature: undefined,
+	humidity: undefined,
+	fan: undefined,
+    
+    // Temperature Reading
+    getTemperature: function(callback) {
+        var that = this;
+        var addr = this.temp_PV;
+        var alarm = this.temp_alarm;
+        if (addr && alarm) {
+            console.log("Addr = " + addr + " Alarm = " + alarm);
+            getData(addr,'h',function(res) {
+                if(res) {
+                    var reading = parseFloat(res) / 10.0;
+                    console.log("Temperature = " + reading);
+                    callback(null, reading);
+                } else {
+                    that.temperature.getCharacteristic(Characteristic.StatusFault).setValue(99);
+				    callback(null,0);
                 }
-
-                this.lastUpdateAt = +Date.now();
-
-                switch (service) {
-                    case "temperature":
-                        callback(null, this.temperature);
-                        break;
-                    case "humidity":
-                        callback(null, this.humidity);
-                        break;
-                    default:
-                        var error = new Error("Unknown service: " + service);
-                        callback(error);
+            });
+        } else {
+            console.log("Addr = " + addr + " Alarm = " + alarm);
+            that.temperature.getCharacteristic(Characteristic.StatusFault).setValue(101);
+		    callback(null,0);
+        }
+    },
+ 
+    // Humidity Reading
+    getHumidity: function(callback) {
+        var that = this;
+        var addr = this.hum_PV;
+        var alarm = this.hum_alarm;
+        if (addr && alarm) {
+            console.log("Addr = " + addr + " Alarm = " + alarm);
+            getData(addr,'h',function(res) {
+                if(res) {
+                    var reading = parseInt(res);
+                    console.log("Humidity = " + reading);
+                    callback(null, reading);
+                } else {
+                    that.humidity.getCharacteristic(Characteristic.StatusFault).setValue(99);
+				    callback(null,0);
                 }
-            }
-        }.bind(this));
+            });
+        } else {
+            console.log("Addr = " + addr + " Alarm = " + alarm);
+            that.humidity.getCharacteristic(Characteristic.StatusFault).setValue(101);
+		    callback(null,0);
+        }
     },
-
-    getTemperatureState: function(callback) {
-        this.getRemoteState("temperature", callback);
-    },
-
-    getHumidityState: function(callback) {
-        this.getRemoteState("humidity", callback);
-    },
+    
 
     getServices: function () {
         var services = [],
@@ -92,19 +140,29 @@ HttpTemphum.prototype = {
             .setCharacteristic(Characteristic.SerialNumber, this.serial);
         services.push(informationService);
 
-        this.temperatureService = new Service.TemperatureSensor(this.name);
-        this.temperatureService
-            .getCharacteristic(Characteristic.CurrentTemperature)
-            .setProps({ minValue: -273, maxValue: 200 })
-            .on("get", this.getTemperatureState.bind(this));
-        services.push(this.temperatureService);
-
-        if (this.humidity !== false) {
-            this.humidityService = new Service.HumiditySensor(this.name);
-            this.humidityService
+        if (this.temperature) {
+            var temperatureService = new Service.TemperatureSensor(this.name + ' Temperature');
+            temperatureService
+                .getCharacteristic(Characteristic.CurrentTemperature)
+                .setProps({ minValue: -273.0, maxValue: 200.0 })
+                .on("get", this.getTemperature.bind(this))
+            temperatureService
+	    	    .getCharacteristic(Characteristic.StatusFault)
+			    .on('set', this.setStatusFault.bind(this));
+            this.temperature = temperatureService;
+            services.push(this.temperature);
+        }
+        
+        if (this.humidity) {
+            var humidityService = new Service.HumiditySensor(this.name + 'Humidity');
+            humidityService
                 .getCharacteristic(Characteristic.CurrentRelativeHumidity)
-                .setProps({ minValue: 0, maxValue: 200 })
-                .on("get", this.getHumidityState.bind(this));
+                .setProps({ minValue: 0, maxValue: 100 })
+                .on("get", this.getHumidityState.bind(this))
+            humidityService
+			    .getCharacteristic(Characteristic.StatusFault)
+			    .on('set', this.setStatusFault.bind(this));
+            this.humidity = humidityService;
             services.push(this.humidityService);
         }
 
