@@ -12,7 +12,7 @@
 
     "accessories": [
 	{
-	    "accessory": "httpautofan",
+	    "accessory": "http-autofan",
 	    "name": "Familiy Fan",
 	    "acc_name": "Family",
 	    "manufacturer": "MurchHome",
