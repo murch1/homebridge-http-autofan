@@ -1,5 +1,6 @@
 var Service, Characteristic;
 var request = require("superagent");
+var http = require('http');
 
 // Require and instantiate a cache module
 var cacheModule = require("cache-service-cache-module");
@@ -19,6 +20,7 @@ function HttpAutofan(log, config) {
 
     // Configuration
     this.name            = config["name"];
+    this.acc_name		 = config["acc_name"];
     // Accessory information
     this.manufacturer    = config["manufacturer"] || "MurchHome";
     this.model           = config["model"] || "DHT22";
@@ -41,38 +43,46 @@ function HttpAutofan(log, config) {
 }
 
 function getData(addr, type, callback) {
-    var param = {"raddr": addr,
-                 "rtype" : type};
+    var param = JSON.parse('{"raddr": ' + addr + ',' +
+                 		   '"rtype" : "' + type + '"}');
+	console.log(param);
 	sendData(param, function(res) {
 		callback(res);
 	});
 }
 
 function getSetData(raddr,rtype,waddr,wtype,wmode,write) { 
-	var param = {"raddr" : raddr,
-                 "rtype" : rtype,
-                 "waddr" : waddr,
-                 "wtype" : wtype,
-                 "wmode" : wmode,
-                 "write" : write}
+	var param = JSON.parse('{"raddr" : ' + raddr + ',' +
+                 		   '"rtype" : "' + rtype + '",' +
+                 		   '"waddr" : ' + waddr + ',' +
+                 		   '"wtype" : "' + wtype + '",' +
+                 		   '"wmode" : "' + wmode + '",' +
+                 		   '"write" : ' + write + '}');
 	sendData(param, function(res) {
 		callback(res);
 	});		
 }
 
 function sendData(param, callback) {
-    request
-        .get('http://127.0.0.1/modbus')
-        .query(param)
-        .end(function(err, res, key) {
-            if (err) {
-                console.log(`NODE-RED HTTP failure`);
-                callback(null);
-            } else {
-                console.log(`HTTP success (${res})`);
-                callback(res);
-            }
-         });
+	var req = null;
+	var options = {
+        	hostname: '127.0.0.1',          // NodeRED local HTTP server
+        	port: '1880',                   // NodeRED port
+        	path: '/modbus?' + param,       // HTTP access point + parameters
+        	method: 'GET',
+  	};
+	req = http.request(options, function (res) {
+    	res.setEncoding('utf8');
+    	res.on('data', function (chunk) {
+		data = JSON.parse(chunk);
+        	callback(data.payload);
+    	});
+  	});
+	req.on('error', function(e) {
+		console.log(pilot + ' problem with request: ' + e.message);
+		callback(-1);
+	});
+	req.end();
 }
 
 HttpAutofan.prototype = {
@@ -131,8 +141,7 @@ HttpAutofan.prototype = {
     
 
     getServices: function () {
-        var services = [],
-            informationService = new Service.AccessoryInformation();
+        var services = [], informationService = new Service.AccessoryInformation();
 
         informationService
             .setCharacteristic(Characteristic.Manufacturer, this.manufacturer)
@@ -141,7 +150,7 @@ HttpAutofan.prototype = {
         services.push(informationService);
 
         if (this.temperature) {
-            var temperatureService = new Service.TemperatureSensor(this.name + ' Temperature');
+            var temperatureService = new Service.TemperatureSensor(this.acc_name + ' Temperature');
             temperatureService
                 .getCharacteristic(Characteristic.CurrentTemperature)
                 .setProps({ minValue: -273.0, maxValue: 200.0 })
@@ -154,7 +163,7 @@ HttpAutofan.prototype = {
         }
         
         if (this.humidity) {
-            var humidityService = new Service.HumiditySensor(this.name + 'Humidity');
+            var humidityService = new Service.HumiditySensor(this.acc_name + 'Humidity');
             humidityService
                 .getCharacteristic(Characteristic.CurrentRelativeHumidity)
                 .setProps({ minValue: 0, maxValue: 100 })
@@ -163,7 +172,7 @@ HttpAutofan.prototype = {
 //		.getCharacteristic(Characteristic.StatusFault)
 //		.on('set', this.setStatusFault.bind(this));
             this.humidity = humidityService;
-            services.push(this.humidityService);
+            services.push(this.humidity);
         }
 
         return services;
