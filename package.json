@@ -1,6 +1,6 @@
 {
   "name": "homebridge-httpautofan",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "automatic fan https plugin for homebridge",
   "license": "ISC",
   "keywords": [
