@@ -77,25 +77,26 @@ Sample configuration:
 ```
 "accessories": [
 	{
-	    "accessory": "httpautofan",
-	    "name": "PLC Cabinet",
-	    "acc_name": "PLC",
-	    "manufacturer": "MurchHome",
-	    "model": "DHT22",
-	    "serial": "20000",
-	    "temperature": 1,
-            "temp_PV" : 6,
-            "temp_SP" : 402,
-            "temp_alarm" : 16692,
-	    "humidity": 1,
-            "hum_PV" : 7,
-            "hum_alarm" : 16691,
-	    "fan": 0,
-            "fan_SP" : [16399, 16396, 16397, 16398],
-            "fan_PV" : 301,
-            "fan_autoPV" : 16999,
-            "fan_autoSP" : 16400,
-	    "timeout": 2500
+	    "accessory":      "http-autofan",
+	    "name": 	      "Family Environment",
+	    "acc_name":       "Family",
+	    "manufacturer":   "Home",
+	    "model": 	      "Fan 2",
+	    "serial": 	      "FN0001",
+	    "temperature":    1,
+              "temp_PV" :     "6",
+              "temp_SPW" :    "401",
+              "temp_SPR":     "301",
+              "temp_alarm" :  "16691",
+	    "humidity":       1,
+              "hum_PV" :      "5",
+              "hum_alarm" :   "16690",
+	    "fan": 	      1,
+              "fan_SP" :      ["16398", "16395", "16396", "16397"],
+              "fan_PV" :      "300",
+              "fan_autoPV" :  "16998",
+              "fan_autoSP" :  "16399",
+	    "timeout": 	      "2500"
 	}
 ]
 ```
@@ -105,7 +106,8 @@ If no setting is entered for any of these, it will default to `temperature` only
 
 # Modbus address settings
 *    temp_PV = temperature process variable (reading) (x10) - *integer (holding register)* - the PLC will need to provide 24.5 as 245. The decimal point will be added in this accessory code.
-*    temp_SP = temperature set point (x10) - *integer (holding register)* - the PLC will recieve the temperature as 245 from this accessory code.
+*    temp_SPW = temperature set point write (x10) - *integer (holding register)* - the PLC will recieve the temperature as 245 from this accessory code.
+*    temp_SPR = temperature set point read (x10) - *integer (holding register)* - the temperature setpoint is written to a different register than it is read from. There are some boundary checks that happen in the PLC before it is accepted as a valid setpoint input. The setpoint "read" register is the value accepted by the PLC as the setpoint. 
 *    temp_alarm = temperature failure alarm - *bool (coil)* - the alarm will be shown in HomeKit as StatusFault value 1.
 *    hum_PV = humidity process variable (reading) - *integer (holding register)* - No decimal points used in humidity.
 *    hum_alarm = humidity failure alarm - *bool (coil)* - the alarm will be shown in HomeKit as StatusFault value 1.
