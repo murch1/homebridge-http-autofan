@@ -12,25 +12,26 @@
 
     "accessories": [
 	{
-	    "accessory": "http-autofan",
-	    "name": "Familiy Fan",
-	    "acc_name": "Family",
-	    "manufacturer": "MurchHome",
-	        "model": "DHT22",
-	        "serial": "20000",
-	    "temperature": 1,
-            	"temp_PV" : 6,
-            	"temp_SP" : 402,
-            	"temp_alarm" : 16692,
-	    "humidity": 1,
-            	"hum_PV" : 7,
-            	"hum_alarm" : 16691,
-	    "fan": 1,
-            	"fan_SP" : [16399, 16396, 16397, 16398],
-            	"fan_PV" : 301,
-            	"fan_autoPV" : 16999,
-            	"fan_autoSP" : 16400,
-	    "timeout": 2500
+	    "accessory":      "http-autofan",
+	    "name": 	      "Family Environment",
+	    "acc_name":       "Family",
+	    "manufacturer":   "Home",
+	    "model": 	      "Fan 2",
+	    "serial": 	      "FN0001",
+	    "temperature":    1,
+              "temp_PV" :     "6",
+              "temp_SPW" :    "401",
+              "temp_SPR":     "301",
+              "temp_alarm" :  "16691",
+	    "humidity":       1,
+              "hum_PV" :      "5",
+              "hum_alarm" :   "16690",
+	    "fan": 	      1,
+              "fan_SP" :      ["16398", "16395", "16396", "16397"],
+              "fan_PV" :      "300",
+              "fan_autoPV" :  "16998",
+              "fan_autoSP" :  "16399",
+	    "timeout": 	      "2500"
 	}
-]
+    ]
 }
