@@ -12,7 +12,7 @@ var superagentCache = require("superagent-cache-plugin")(cache);
 module.exports = function (homebridge) {
     Service = homebridge.hap.Service;
     Characteristic = homebridge.hap.Characteristic;
-    homebridge.registerAccessory("homebridge-http-autofan", "http-autofan", HttpAutofan);
+    homebridge.registerAccessory("homebridge-httpautofan", "http-autofan", HttpAutofan);
 }
 
 function HttpAutofan(log, config) {
