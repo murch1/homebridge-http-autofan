@@ -80,6 +80,7 @@ Sample configuration:
 	    "accessory":      "http-autofan",
 	    "name": 	      "Family Environment",
 	    "acc_name":       "Family",
+	    "host":           "192.168.1.100", // Defaults to 127.0.0.1 if not defined
 	    "manufacturer":   "Home",
 	    "model": 	      "Fan 2",
 	    "serial": 	      "FN0001",
