@@ -20,7 +20,8 @@ function HttpAutofan(log, config) {
 
     // Configuration
     this.name            = config["name"];
-    this.acc_name		 = config["acc_name"];
+    this.acc_name	 = config["acc_name"];
+    this.host		 = config["host"] || "127.0.0.1";
     // Accessory information
     this.manufacturer    = config["manufacturer"] || "MurchHome";
     this.model           = config["model"] || "MurchAcc";
@@ -36,7 +37,7 @@ function HttpAutofan(log, config) {
     this.hum_PV        	 = config["hum_PV"];
     this.hum_alarm       = config["hum_alarm"];
     // Fan
-	this.fan             = config["fan"] || 0;
+    this.fan             = config["fan"] || 0;
     this.fan_SP          = config["fan_SP"];
     this.fan_PV          = config["fan_PV"];
     this.fan_autoPV      = config["fan_autoPV"];
@@ -44,24 +45,24 @@ function HttpAutofan(log, config) {
 }
 
 
-function getData(addr, type, callback) {
+function getData(addr, type, host, callback) {
     var param = 'raddr=' + addr + '&rtype=' + type;
-	sendData(param, function(res) {
+	sendData(param, host, function(res) {
 		callback(res);
 	});
 }
 
-function getSetData(raddr, rtype, waddr, wtype, wmode, write, callback) {
+function getSetData(raddr, rtype, waddr, wtype, wmode, write, host, callback) {
 	var param = 'write=' + write + '&waddr=' + waddr + '&wtype=' + wtype + '&wmode=' + wmode + '&raddr=' + raddr + '&rtype=' + rtype;
-	sendData(param, function(res) {
+	sendData(param, host, function(res) {
 		callback(res);
 	});		
 }
 
-function sendData(param, callback) {
+function sendData(param, host, callback) {
 	var req = null;
 	var options = {
-        	hostname: '127.0.0.1',          // NodeRED local HTTP server
+        	hostname: host,         	// NodeRED HTTP server
         	port: '1880',                   // NodeRED port
         	path: '/modbus?' + param,       // HTTP access point + parameters
         	method: 'GET',
@@ -92,8 +93,9 @@ HttpAutofan.prototype = {
         var that = this;
         var addr = this.temp_PV;
         var alarm = this.temp_alarm;
+        var host = this.host;
         if (addr && alarm) {
-            getData(addr,'h',function(res) {
+            getData(addr,'h',host,function(res) {
                 if(res) {
                     var reading = parseFloat(res) / 10.0;
                     callback(null, reading);
@@ -113,8 +115,9 @@ HttpAutofan.prototype = {
         var that = this;
         var addr = this.hum_PV;
         var alarm = this.hum_alarm;
+        var host = this.host;
         if (addr && alarm) {
-            getData(addr,'h',function(res) {
+            getData(addr,'h',host,function(res) {
                 if(res) {
                     var reading = parseInt(res);
                     callback(null, reading);
@@ -133,8 +136,9 @@ HttpAutofan.prototype = {
     getFanState: function(callback){
     	var that = this;
     	var addr = this.fan_PV;
+    	var host = this.host;
         if (addr) {
-            getData(addr,'h',function(res) {
+            getData(addr,'h',host,function(res) {
                 if(res !=null || res != undefined) {
                 	var reading = parseInt(res);
                 	if (reading > 0) {
@@ -152,9 +156,10 @@ HttpAutofan.prototype = {
     setFanState: function(fanState, callback){
     	var that = this;
 		var addr = this.fan_PV;
+		var host = this.host;
 		var state;
         if (addr) {
-            getData(addr,'h',function(res) {
+            getData(addr,'h',host,function(res) {
                 if(res) {
                     	state = 1;
                     } else {
@@ -181,8 +186,9 @@ HttpAutofan.prototype = {
     getFanSpeed: function(callback){    
     	var that = this;
     	var addr = this.fan_PV;
+    	var host = this.host;
         if (addr) {
-            getData(addr,'h',function(res) {
+            getData(addr,'h',host,function(res) {
                 if(res != null || res != undefined) {
                     var reading = parseInt(res);
                     callback(null, reading);
@@ -199,6 +205,7 @@ HttpAutofan.prototype = {
     	var that = this;
 		var raddr = this.fan_PV;
 		var waddr;
+		var host = this.host;
 		if(fanSpeed > 3) {
 			waddr = this.fan_SP[3];
 		} else if (fanSpeed < 0) {
@@ -207,9 +214,9 @@ HttpAutofan.prototype = {
 			waddr = this.fan_SP[fanSpeed];
 		}
 		if (raddr && waddr) {
-			getData(raddr,'h', function(res) {
+			getData(raddr,'h',host,function(res) {
 				if(fanSpeed != parseInt(res)) {
-					getSetData(raddr,'h',waddr,'c','mom',true,function(res) {
+					getSetData(raddr,'h',waddr,'c','mom',true,host,function(res) {
 						that.fan.getCharacteristic(Characteristic.Active).getValue();
 						that.fan.getCharacteristic(Characteristic.RotationSpeed).getValue();
 						that.fan.getCharacteristic(Characteristic.TargetFanState).getValue();
@@ -228,8 +235,9 @@ HttpAutofan.prototype = {
 	getAutoMan: function(callback){   
 		var that = this; 
     	var addr = this.fan_autoPV;
+    	var host = this.host;
         if (addr) {
-            getData(addr,'c',function(res) {
+            getData(addr,'c',host,function(res) {
                 if(res != null || res != undefined) {
                 	if(res === true) {
                 		callback(null,1);
@@ -249,9 +257,10 @@ HttpAutofan.prototype = {
     	var that = this;
 		var raddr = this.fan_autoPV;
 		var waddr = this.fan_autoSP;
+		var host = this.host;
 		var state;
 		if(raddr && waddr) {
-			getData(raddr,'c', function(res) {
+			getData(raddr,'c',host,function(res) {
 				if(res != null || res != undefined) {
 					if(res === true) {
 						state = 1;
@@ -259,7 +268,7 @@ HttpAutofan.prototype = {
 						state = 0;
 					}
 					if(autoManState != state) {
-						getSetData(raddr,'c',waddr,'c','mom',true,function(res) {
+						getSetData(raddr,'c',waddr,'c','mom',true,host,function(res) {
 							that.fan.getCharacteristic(Characteristic.Active).getValue();
 							that.fan.getCharacteristic(Characteristic.RotationSpeed).getValue();
 							that.fan.getCharacteristic(Characteristic.TargetFanState).getValue();
@@ -279,8 +288,9 @@ HttpAutofan.prototype = {
     getTempSP: function(callback){
     	var that = this;
     	var addr = this.temp_SPR;
+    	var host = this.host;
     	if(addr) {   
-			getData(addr,'h',function(res) {
+			getData(addr,'h',host,function(res) {
 				var reading = parseFloat(res) / 10.0;
 				callback(null, reading);	
 			});
@@ -293,10 +303,11 @@ HttpAutofan.prototype = {
     	var that = this;
 		var raddr = this.temp_SPR;
 		var waddr = this.temp_SPW;
+		var host = this.host;
 		if(raddr && waddr) {
-			getData(raddr,'h',function(res) {
+			getData(raddr,'h',host,function(res) {
 				if(targetTemp != (parseFloat(res) / 10.0)) {
-					getSetData(raddr,'h',waddr,'h','set',parseInt(targetTemp * 10),function(res) {
+					getSetData(raddr,'h',waddr,'h','set',parseInt(targetTemp * 10),host,function(res) {
 						that.fan.getCharacteristic(Characteristic.TargetTemperature).getValue();
 						callback(null);
 					});
