@@ -353,6 +353,7 @@ HttpAutofan.prototype = {
 				.on('set', this.setFanState.bind(this))
 			fanService
 				.getCharacteristic(Characteristic.RotationSpeed)
+				.setProps({ minValue: 0, maxValue: 3, minStep: 1 })
 				.on('get', this.getFanSpeed.bind(this))
 				.on('set', this.setFanSpeed.bind(this))
 			fanService
