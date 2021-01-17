@@ -11,64 +11,42 @@ This accessory is purely a front end GUI. There's a few other components in the 
 
 1. Install homebridge using: `npm install -g homebridge`
 2. Install this plugin using: ` npm install git://github.com/murch1/homebridge-http-autofan.git`
-3. Edit .../node_modules/homebridge/node_modules/hap-nodejs/lib/Characteristic.js
-    a. Find `Characteristic.Units` and add `SPEED: 'speed'` to the dictionary.
-4. Edit .../node_modules/homebridge/node_modules/hap-nodejs/lib/gen/HomeKitTypes.js
-    a. I know it says `THIS FILE IS AUTO-GENERATED - DO NOT MODIFY`. I did and the world didn't end. Just keep track of the changes so you don't loose them after an update.
-    b. Find `Characteristic "Rotation Speed` and replace with
-    ```
-    /**
-     * Characteristic "Rotation Speed"
-     */
-
-    Characteristic.RotationSpeed = function() {
-      Characteristic.call(this, 'Rotation Speed', '00000029-0000-1000-8000-0026BB765291');
-      this.setProps({
-        format: Characteristic.Formats.INT,
-        unit: Characteristic.Units.SPEED,
-        maxValue: 3,
-        minValue: 0,
-        minStep: 1,
-        perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
-      });
-      this.value = this.getDefaultValue();
-    };
-
-    inherits(Characteristic.RotationSpeed, Characteristic);
-
-    Characteristic.RotationSpeed.UUID = '00000029-0000-1000-8000-0026BB765291';
-    ```
-    c. Find `Service "Fan v2"` and replace with
-    ```
-    /**
-     * Service "Fan v2"
-     */
-
-    Service.Fanv2 = function(displayName, subtype) {
-      Service.call(this, displayName, '000000B7-0000-1000-8000-0026BB765291', subtype);
-
-      // Required Characteristics
-      this.addCharacteristic(Characteristic.Active);
-
-      // Optional Characteristics
-      this.addOptionalCharacteristic(Characteristic.CurrentFanState);
-      this.addOptionalCharacteristic(Characteristic.TargetFanState);
-      this.addOptionalCharacteristic(Characteristic.LockPhysicalControls);
-      this.addOptionalCharacteristic(Characteristic.Name);
-      this.addOptionalCharacteristic(Characteristic.RotationDirection);
-      this.addOptionalCharacteristic(Characteristic.RotationSpeed);
-      this.addOptionalCharacteristic(Characteristic.SwingMode);
-      this.addOptionalCharacteristic(Characteristic.TargetTemperature);
-      this.addOptionalCharacteristic(Characteristic.On);
-    };
-
-    inherits(Service.Fanv2, Service);
-
-    Service.Fanv2.UUID = '000000B7-0000-1000-8000-0026BB765291';
-    ```
-    **Please note this altered service won't be recognised in Apple's Home.app. The Elgato Eve.app figures it out just fine.**
-    
-3. Update your configuration file. See `sample-config.json` in this repository for a sample.
+3. Edit ...node_modules/homebridge/node_modules/hap-nodejs/dist/lib/Characteristic.d.ts
+```	
+	export declare const enum Units {
+	    CELSIUS = "celsius",
+	    PERCENTAGE = "percentage",
+	    ARC_DEGREE = "arcdegrees",
+	    LUX = "lux",
+	    SECONDS = "seconds",
+	    SPEED = "speed"
+	}
+```
+4. Edit ...node_modules/homebridge/node_modules/hap-nodejs/dist/lib/Characteristic.js
+```	
+	var Units;
+	(function (Units) {
+    	Units["CELSIUS"] = "celsius";
+    	Units["PERCENTAGE"] = "percentage";
+    	Units["ARC_DEGREE"] = "arcdegrees";
+    	Units["LUX"] = "lux";
+    	Units["SECONDS"] = "seconds";
+    	Units["SPEED"] = "speed";
+	})(Units = exports.Units || (exports.Units = {}));
+```
+5. The properties are already set in index.js to be
+```	
+	fanService
+	.getCharacteristic(Characteristic.RotationSpeed)
+	.setProps({ minValue: 0, maxValue: 3, minStep: 1 })
+	.on('get', this.getFanSpeed.bind(this))
+	.on('set', this.setFanSpeed.bind(this))
+```
+If you make the changes in sets 3 and 4, you can adjust the .setProps line to look like this:
+```	
+	.setProps({ unit: "SPEED", minValue: 0, maxValue: 3, minStep: 1 })
+```    
+6. Update your configuration file. See `sample-config.json` in this repository for a sample.
 
 # Configuration
 
