@@ -11,7 +11,7 @@ This accessory is purely a front end GUI. There's a few other components in the 
 
 1. Install homebridge using: `npm install -g homebridge`
 2. Install this plugin using: ` npm install git://github.com/murch1/homebridge-http-autofan.git`
-3. Edit ...node_modules/homebridge/node_modules/hap-nodejs/dist/lib/Characteristic.d.ts
+3. Edit ...node_modules/homebridge/node_modules/hap-nodejs/dist/lib/Characteristic.d.ts - Please note that updating homebridge will write over these edits and may be slightly different after the update.
 ```	
 	export declare const enum Units {
 	    CELSIUS = "celsius",
@@ -22,25 +22,25 @@ This accessory is purely a front end GUI. There's a few other components in the 
 	    SPEED = "speed"
 	}
 ```
-4. Edit ...node_modules/homebridge/node_modules/hap-nodejs/dist/lib/Characteristic.js
+4. Edit ...node_modules/homebridge/node_modules/hap-nodejs/dist/lib/Characteristic.js - Please note that updating homebridge will write over these edits and may be slightly different after the update.
 ```	
 	var Units;
 	(function (Units) {
-    	Units["CELSIUS"] = "celsius";
-    	Units["PERCENTAGE"] = "percentage";
-    	Units["ARC_DEGREE"] = "arcdegrees";
-    	Units["LUX"] = "lux";
-    	Units["SECONDS"] = "seconds";
-    	Units["SPEED"] = "speed";
+    	    Units["CELSIUS"] = "celsius";
+    	    Units["PERCENTAGE"] = "percentage";
+    	    Units["ARC_DEGREE"] = "arcdegrees";
+    	    Units["LUX"] = "lux";
+    	    Units["SECONDS"] = "seconds";
+    	    Units["SPEED"] = "speed";
 	})(Units = exports.Units || (exports.Units = {}));
 ```
 5. The properties are already set in index.js to be
 ```	
 	fanService
-	.getCharacteristic(Characteristic.RotationSpeed)
-	.setProps({ minValue: 0, maxValue: 3, minStep: 1 })
-	.on('get', this.getFanSpeed.bind(this))
-	.on('set', this.setFanSpeed.bind(this))
+		.getCharacteristic(Characteristic.RotationSpeed)
+		.setProps({ minValue: 0, maxValue: 3, minStep: 1 })
+		.on('get', this.getFanSpeed.bind(this))
+		.on('set', this.setFanSpeed.bind(this))
 ```
 If you make the changes in sets 3 and 4, you can adjust the .setProps line to look like this:
 ```	
